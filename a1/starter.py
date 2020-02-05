@@ -287,10 +287,15 @@ def buildGraph(loss="MSE", reg=1.0):
     return W, bias, train_data, predict_target, train_target, loss, optimizer
 
 
-    '''
-    part 1
-    
-    
+
+    #part 1
+'''
+if __name__ == '__main__':
+    trainData, validData, testData, trainTarget, validTarget, testTarget = loadData()
+
+    trainData = np.reshape(trainData, (-1, 784))
+    validData = np.reshape(validData, (-1, 784))
+    testData = np.reshape(testData, (-1, 784))
     W = np.random.normal(0, 0.5, (trainData.shape[1], 1))
     b = 0
 
@@ -302,7 +307,7 @@ def buildGraph(loss="MSE", reg=1.0):
     
     
     
-    W_update, b_update, train_loss, val_loss, test_loss, train_accuracy, val_accuracy, test_accuracy = grad_descent(W, b, trainData, trainTarget, validData, validTarget, testData, testTarget, alpha, epoch, lamda, reg)
+    W_update, b_update, train_loss, val_loss, test_loss, train_accuracy, val_accuracy, test_accuracy = grad_descent(W, b, trainData, trainTarget, validData, validTarget, testData, testTarget, alpha, epoch, lamda, reg, 'MSE')
 
 
     iterations = range(len(train_loss))
@@ -314,7 +319,13 @@ def buildGraph(loss="MSE", reg=1.0):
     print(train_accuracy[len(train_loss)-1])
     print(val_accuracy[len(train_loss) - 1])
     print(test_accuracy[len(train_loss) - 1])
-    '''
+
+
+
+
+'''
+
+
 
     '''
     when learning rate is 0.005
@@ -444,6 +455,7 @@ def buildGraph(loss="MSE", reg=1.0):
 
     #beginning of part 3
 
+
 if __name__ == '__main__':
     trainData, validData, testData, trainTarget, validTarget, testTarget = loadData()
 
@@ -508,3 +520,8 @@ if __name__ == '__main__':
 
     plot_part_three(iterations, train_loss, valid_loss, test_loss, 0.001, 0, 'Loss')
     plot_part_three(iterations, train_accuracy, valid_acuuracy, test_accuracy, 0.001, 0, 'Accuracy')
+
+
+
+
+
