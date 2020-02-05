@@ -1,6 +1,8 @@
+
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
+
 import time
 import os
 
@@ -206,6 +208,32 @@ def plot_loss(iterations, train, val, test, l_rate, lamda, type):
 
 
 
+def plot_part_three(iterations, train, val, test, l_rate, lamda, type):
+
+
+    if type == 'Loss':
+        plot_title = 'SGD Loss Graph for ' + str(l_rate) + ' learning rate, ' + str(lamda) + ' lambda'
+        plt.title(plot_title)
+        plt.ylabel('Loss')
+        plt.xlabel('Number of iterations')
+        plt.plot(iterations, train)
+        plt.plot(iterations, val)
+        plt.plot(iterations, test)
+        plt.legend(['Training Loss', 'Validation Loss', 'Test Loss'], loc='upper right')
+        plt.show()
+    elif type == 'Accuracy':
+        plot_title = 'SGD Accuracy Graph for ' + str(l_rate) + ' learning rate, '+ str(lamda) + ' lambda'
+        plt.title(plot_title)
+        plt.ylabel('Accuracy')
+        plt.xlabel('Number of iterations')
+        plt.plot(iterations, train)
+        plt.plot(iterations, val)
+        plt.plot(iterations, test)
+        plt.legend(['Training Accuracy', 'Validation Accuracy', 'Test Accuracy'], loc='lower right')
+        plt.show()
+
+
+
 
 
 def crossEntropyLoss(W, b, x, y, reg):
@@ -230,38 +258,50 @@ def gradCE(W, b, x, y, reg):
 
     return W_grad, b_grad
 
-'''
-def buildGraph(loss="MSE"):
+
+def buildGraph(loss="MSE", reg=1.0):
 	#Initialize weight and bias tensors
-	tf.set_random_seed(421)
-
-	if loss == "MSE":
-	# Your implementation
-
-	elif loss == "CE":
-	#Your implementation here
-'''
+    tf.compat.v1.set_random_seed(421)
+    W = tf.Variable(tf.random.truncated_normal(shape=(784,1), stddev= 0.5), name="weight")
+    bias = tf.Variable(0.0, name= "bias")
+    train_data = tf.compat.v1.placeholder(tf.float32, [None, 784])
+    train_target = tf.compat.v1.placeholder(tf.float32, [None, 1])
 
 
+    if loss == "MSE":
+        predict_target = tf.matmul(train_data, W) + bias
+        loss = tf.compat.v1.losses.mean_squared_error(train_target, predict_target)
+        reg_parameter = tf.nn.l2_loss(W)
+        loss += reg * reg_parameter
+        optimizer = tf.compat.v1.train.GradientDescentOptimizer(0.001).minimize(loss)
 
-if __name__ == '__main__':
-    trainData, validData, testData, trainTarget, validTarget, testTarget = loadData()
 
-    trainData = np.reshape(trainData, (-1, 784))
-    validData = np.reshape(validData, (-1, 784))
-    testData = np.reshape(testData, (-1, 784))
+    elif loss == "CE":
+        predict_target = tf.matmul(train_data, W) + bias
+        loss = tf.compat.v1.losses.sigmoid_cross_entropy(train_target, predict_target)
+        reg_parameter = tf.nn.l2_loss(W)
+        loss += reg * reg_parameter
+        optimizer = tf.compat.v1.train.GradientDescentOptimizer(0.001).minimize(loss)
 
 
+    return W, bias, train_data, predict_target, train_target, loss, optimizer
+
+
+    '''
+    part 1
+    
+    
     W = np.random.normal(0, 0.5, (trainData.shape[1], 1))
     b = 0
 
     alpha = 0.005
     lamda = 0
     epoch = 5000
-    reg = 1*10**(-7)
-
-    '''
-    part 1
+    reg = 1 * 10 ** (-7)
+    
+    
+    
+    
     W_update, b_update, train_loss, val_loss, test_loss, train_accuracy, val_accuracy, test_accuracy = grad_descent(W, b, trainData, trainTarget, validData, validTarget, testData, testTarget, alpha, epoch, lamda, reg)
 
 
@@ -270,7 +310,7 @@ if __name__ == '__main__':
     plot_loss(iterations, train_loss, val_loss, test_loss, alpha, lamda,  'Loss')
     plot_loss(iterations, train_accuracy, val_accuracy, test_accuracy, alpha, lamda,  'Accuracy')
 
-
+    
     print(train_accuracy[len(train_loss)-1])
     print(val_accuracy[len(train_loss) - 1])
     print(test_accuracy[len(train_loss) - 1])
@@ -359,37 +399,10 @@ if __name__ == '__main__':
 
     #part 2
 
-    W_update, b_update, train_loss, val_loss, test_loss, train_accuracy, val_accuracy, test_accuracy = grad_descent(W,
-                                                                                                                    b,
-                                                                                                                    trainData,
-                                                                                                                    trainTarget,
-                                                                                                                    validData,
-                                                                                                                    validTarget,
-                                                                                                                    testData,
-                                                                                                                    testTarget,
-                                                                                                                    alpha,
-                                                                                                                    epoch,
-                                                                                                                    lamda,
-                                                                                                                    reg,
-                                                                                                                    'MSE')
-
-    CEW_update, CEb_update, CEtrain_loss, CEval_loss, CEtest_loss, CEtrain_accuracy, CEval_accuracy, CEtest_accuracy = grad_descent(W,
-                                                                                                                    b,
-                                                                                                                    trainData,
-                                                                                                                    trainTarget,
-                                                                                                                    validData,
-                                                                                                                    validTarget,
-                                                                                                                    testData,
-                                                                                                                    testTarget,
-                                                                                                                    alpha,
-                                                                                                                    epoch,
-                                                                                                                    lamda,
-                                                                                                                    reg,
-                                                                                                                    'CE')
 
     #part 2.3 plot
 
-
+    '''
     iterations = range(len(train_loss))
 
     plt.title('Logistic Regression vs Linear Regression')
@@ -399,10 +412,8 @@ if __name__ == '__main__':
     plt.plot(iterations,CEtrain_loss)
     plt.legend(['MSE Loss', 'CE Loss'], loc= 'upper right')
     plt.show()
+    '''
 
-
-
-    #testing git hello
 
 
     #end part 2.3
@@ -431,3 +442,69 @@ if __name__ == '__main__':
         test accuracy: 0.965
     '''
 
+    #beginning of part 3
+
+if __name__ == '__main__':
+    trainData, validData, testData, trainTarget, validTarget, testTarget = loadData()
+
+    trainData = np.reshape(trainData, (-1, 784))
+    validData = np.reshape(validData, (-1, 784))
+    testData = np.reshape(testData, (-1, 784))
+
+    W, bias, train_data, predict_target, train_target, loss, optimizer = buildGraph('MSE', reg=0.0)
+
+    mini_batchsize = 500
+    epoch = 700
+
+    batch_number = int(trainData.shape[0]/mini_batchsize)
+
+    train_loss = []
+    valid_loss =[]
+    test_loss = []
+
+    train_accuracy = []
+    valid_acuuracy =[]
+    test_accuracy = []
+
+    init = tf.compat.v1.global_variables_initializer()
+
+    with tf.compat.v1.Session() as sess:
+        sess.run(init)
+
+        for i in range(epoch):
+            for j in range(batch_number):
+
+                train_batch = trainData[mini_batchsize*j:mini_batchsize*(j+1), :]
+                test_batch = trainTarget[mini_batchsize*j:mini_batchsize*(j+1), :]
+                _, t_loss = sess.run([optimizer, loss, predict_target], feed_dict={train_data: train_batch, train_target: test_batch})
+
+
+            loss_train = sess.run(loss, feed_dict={train_data: trainData, train_target: trainTarget})
+            loss_valid = sess.run(loss, feed_dict={train_data: validData, train_target: validTarget})
+            loss_test = sess.run(loss, feed_dict={train_data: testData, train_target: testTarget})
+
+            train_loss.append(loss_train)
+            valid_loss.append(loss_valid)
+            test_loss.append(loss_test)
+
+
+            acc_train = calculate_accuracy(sess.run(predict_target, feed_dict={train_data: trainData, train_target: trainTarget}), trainTarget)
+            acc_valid = calculate_accuracy(sess.run(predict_target, feed_dict={train_data: validData, train_target: validTarget}), validTarget)
+            acc_test = calculate_accuracy(sess.run(predict_target, feed_dict={train_data: testData, train_target: testTarget}), testTarget)
+
+            train_accuracy.append(acc_train)
+            valid_acuuracy.append(acc_valid)
+            test_accuracy.append(acc_test)
+
+            #shuffule data
+            np.random.seed(421 + i)
+            np.random.shuffle(trainData)
+            np.random.seed(421 + i)
+            np.random.shuffle(trainTarget)
+
+
+
+    iterations = range(len(train_loss))
+
+    plot_part_three(iterations, train_loss, valid_loss, test_loss, 0.001, 0, 'Loss')
+    plot_part_three(iterations, train_accuracy, valid_acuuracy, test_accuracy, 0.001, 0, 'Accuracy')
