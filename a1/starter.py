@@ -208,11 +208,11 @@ def plot_loss(iterations, train, val, test, l_rate, lamda, type):
 
 
 
-def plot_part_three(iterations, train, val, test, l_rate, lamda, type):
+def plot_part_three(iterations, train, val, test, type, title):
 
 
     if type == 'Loss':
-        plot_title = 'SGD Loss Graph for ' + str(l_rate) + ' learning rate, ' + str(lamda) + ' lambda'
+        plot_title = title
         plt.title(plot_title)
         plt.ylabel('Loss')
         plt.xlabel('Number of iterations')
@@ -222,7 +222,7 @@ def plot_part_three(iterations, train, val, test, l_rate, lamda, type):
         plt.legend(['Training Loss', 'Validation Loss', 'Test Loss'], loc='upper right')
         plt.show()
     elif type == 'Accuracy':
-        plot_title = 'SGD Accuracy Graph for ' + str(l_rate) + ' learning rate, '+ str(lamda) + ' lambda'
+        plot_title = title
         plt.title(plot_title)
         plt.ylabel('Accuracy')
         plt.xlabel('Number of iterations')
@@ -259,7 +259,7 @@ def gradCE(W, b, x, y, reg):
     return W_grad, b_grad
 
 
-def buildGraph(loss="MSE", reg=1.0):
+def buildGraph(loss="MSE", reg=1.0, beta1=0.9, beta2=0.999, epsilon=1e-08):
 	#Initialize weight and bias tensors
     tf.compat.v1.set_random_seed(421)
     W = tf.Variable(tf.random.truncated_normal(shape=(784,1), stddev= 0.5), name="weight")
@@ -273,7 +273,7 @@ def buildGraph(loss="MSE", reg=1.0):
         loss = tf.compat.v1.losses.mean_squared_error(train_target, predict_target)
         reg_parameter = tf.nn.l2_loss(W)
         loss += reg * reg_parameter
-        optimizer = tf.compat.v1.train.GradientDescentOptimizer(0.001).minimize(loss)
+        optimizer = tf.compat.v1.train.AdamOptimizer(0.001, beta1, beta2, epsilon).minimize(loss)
 
 
     elif loss == "CE":
@@ -281,7 +281,7 @@ def buildGraph(loss="MSE", reg=1.0):
         loss = tf.compat.v1.losses.sigmoid_cross_entropy(train_target, predict_target)
         reg_parameter = tf.nn.l2_loss(W)
         loss += reg * reg_parameter
-        optimizer = tf.compat.v1.train.GradientDescentOptimizer(0.001).minimize(loss)
+        optimizer = tf.compat.v1.train.AdamOptimizer(0.001, beta1, beta2, epsilon).minimize(loss)
 
 
     return W, bias, train_data, predict_target, train_target, loss, optimizer
@@ -289,7 +289,7 @@ def buildGraph(loss="MSE", reg=1.0):
 
 
     #part 1
-'''
+    '''
 if __name__ == '__main__':
     trainData, validData, testData, trainTarget, validTarget, testTarget = loadData()
 
@@ -323,7 +323,7 @@ if __name__ == '__main__':
 
 
 
-'''
+    '''
 
 
 
@@ -463,7 +463,8 @@ if __name__ == '__main__':
     validData = np.reshape(validData, (-1, 784))
     testData = np.reshape(testData, (-1, 784))
 
-    W, bias, train_data, predict_target, train_target, loss, optimizer = buildGraph('MSE', reg=0.0)
+
+    W, bias, train_data, predict_target, train_target, loss, optimizer = buildGraph('CE', reg=0.0,epsilon=1e-04)
 
     mini_batchsize = 500
     epoch = 700
@@ -488,7 +489,7 @@ if __name__ == '__main__':
 
                 train_batch = trainData[mini_batchsize*j:mini_batchsize*(j+1), :]
                 test_batch = trainTarget[mini_batchsize*j:mini_batchsize*(j+1), :]
-                _, t_loss = sess.run([optimizer, loss, predict_target], feed_dict={train_data: train_batch, train_target: test_batch})
+                _, t_loss, t_pred = sess.run([optimizer, loss, predict_target], feed_dict={train_data: train_batch, train_target: test_batch})
 
 
             loss_train = sess.run(loss, feed_dict={train_data: trainData, train_target: trainTarget})
@@ -518,8 +519,240 @@ if __name__ == '__main__':
 
     iterations = range(len(train_loss))
 
-    plot_part_three(iterations, train_loss, valid_loss, test_loss, 0.001, 0, 'Loss')
-    plot_part_three(iterations, train_accuracy, valid_acuuracy, test_accuracy, 0.001, 0, 'Accuracy')
+    #plot part 3.3 MSE
+    '''
+    plot_part_three(iterations, train_loss, valid_loss, test_loss, 'Loss', 'Loss for CE using Adam with 1750 Batch Size')
+    plot_part_three(iterations, train_accuracy, valid_acuuracy, test_accuracy, 'Accuracy', 'Accuracy for CE using Adam with 1750 Batch Size')
+
+
+    print(train_loss[len(train_loss)-1])
+    print(valid_loss[len(valid_loss)-1])
+    print(test_loss[len(test_loss)-1])
+
+    print(train_accuracy[len(train_accuracy)-1])
+    print(valid_acuuracy[len(valid_acuuracy)-1])
+    print(test_accuracy[len(test_accuracy)-1])
+
+
+    MSE data:
+    
+    batch size 100:
+        
+        
+        train_loss: 0.028
+        valid_loss: 0.0556
+        test_loss: 0.0664
+    
+        train_ac: 0.98
+        valid_ac: 0.95
+        test_ac: 0.952
+      
+    batch size 700:
+        
+        train_loss: 0.2255
+        valid_loss: 0.2912
+        test_loss: 0.3087
+    
+        train_ac: 0.8568
+        valid_ac: 0.8
+        test_ac: 0.7586
+      
+    batch size 1750:
+        
+        train_loss: 0.76956
+        valid_loss: 1.06271
+        test_loss: 0.8996
+    
+        train_ac: 0.72886
+        valid_ac: 0.71
+        test_ac: 0.68965
+    
+    
+    CE data:
+    
+    batch size 100:
+        
+        train_loss: 0.005
+        valid_loss: 0.079
+        test_loss: 0.215
+    
+        train_ac: 0.999
+        valid_ac: 0.97
+        test_ac: 0.979
+      
+    batch size 700:
+        
+        train_loss: 0.036
+        valid_loss: 0.0678
+        test_loss: 0.135
+     
+        train_ac: 0.9866
+        valid_ac: 0.98
+        test_ac: 0.972
+      
+    batch size 1750:
+        
+        train_loss: 0.07
+        valid_loss: 0.073
+        test_loss: 0.1336
+    
+        train_ac: 0.976
+        valid_ac: 0.97
+        test_ac: 0.9655
+    
+    '''
+    #end
+
+
+    #part 3.4 hyperparameter inverstigation
+
+    #plot_part_three(iterations, train_accuracy, valid_acuuracy, test_accuracy, 'Accuracy','Accuracy for CE with Beta1 = 0.99')
+
+    #plot_part_three(iterations, train_accuracy, valid_acuuracy, test_accuracy, 'Accuracy', 'Accuracy for CE with Beta2 = 0.9999')
+
+    plot_part_three(iterations, train_accuracy, valid_acuuracy, test_accuracy, 'Accuracy', 'Accuracy for CE with Epsilon = 1e-4')
+
+    print(train_loss[len(train_loss) - 1])
+    print(valid_loss[len(valid_loss) - 1])
+    print(test_loss[len(test_loss) - 1])
+
+    print(train_accuracy[len(train_accuracy) - 1])
+    print(valid_acuuracy[len(valid_acuuracy) - 1])
+    print(test_accuracy[len(test_accuracy) - 1])
+
+    '''
+    MSE data: 
+    
+        beta1 = 0.95
+            train_loss: 0.129
+            valid_loss: 0.175
+            test_loss: 0.197
+        
+            train_ac: 0.907
+            valid_ac: 0.84
+            test_ac: 0.855
+            
+        beta1 = 0.99
+            train_loss: 0.145
+            valid_loss: 0.194
+            test_loss: 0.218
+        
+            train_ac: 0.898
+            valid_ac: 0.83
+            test_ac:0.84
+            
+            
+        beta2 = 0.99
+            train_loss: 0.064
+            valid_loss: 0.0978
+            test_loss: 0.11
+        
+            train_ac: 0.96
+            valid_ac: 0.93
+            test_ac: 0.924
+            
+        beta2 = 0.9999
+            train_loss: 0.2315
+            valid_loss: 0.303
+            test_loss: 0.3134
+        
+            train_ac: 0.8551
+            valid_ac: 0.79
+            test_ac: 0.7655
+        
+        epsilon = 1e-09
+            train_loss: 0.133
+            valid_loss: 0.18
+            test_loss: 0.2025
+        
+            train_ac: 0.904
+            valid_ac: 0.83
+            test_ac: 0.855
+            
+        epsilon = 1e-4
+            train_loss: 0.133
+            valid_loss: 0.18
+            test_loss: 0.2025
+        
+            train_ac: 0.904
+            valid_ac: 0.83
+            test_ac: 0.855
+            
+            
+        (data is the exact same when varying epsilon)
+            
+    ######################
+    CE data: 
+    
+        beta1 = 0.95
+            train_loss: 0.025
+            valid_loss: 0.072
+            test_loss: 0.14
+        
+            train_ac: 0.99
+            valid_ac: 0.98
+            test_ac: 0.972
+            
+        beta1 = 0.99
+            train_loss: 0.025
+            valid_loss: 0.073
+            test_loss: 0.142
+        
+            train_ac: 0.99
+            valid_ac: 0.98
+            test_ac:0.972
+            
+            
+        beta2 = 0.99
+            train_loss: 0.012
+            valid_loss: 0.0693
+            test_loss: 0.16
+        
+            train_ac: 0.997
+            valid_ac: 0.97
+            test_ac: 0.9655
+            
+        beta2 = 0.9999
+            train_loss: 0.036 
+            valid_loss: 0.068
+            test_loss: 0.135
+        
+            train_ac: 0.986
+            valid_ac: 0.98
+            test_ac: 0.972
+        
+        epsilon = 1e-09
+            train_loss: 0.0254
+            valid_loss: 0.072
+            test_loss: 0.141
+        
+            train_ac: 0.991
+            valid_ac: 0.98
+            test_ac: 0.972
+            
+        epsilon = 1e-4
+            train_loss: 0.0258
+            valid_loss: 0.071
+            test_loss: 0.14
+        
+            train_ac: 0.99
+            valid_ac: 0.98
+            test_ac:0.972
+    
+    
+    
+    
+    
+    
+    
+    
+    '''
+
+
+
+
+
+    #end
 
 
 
