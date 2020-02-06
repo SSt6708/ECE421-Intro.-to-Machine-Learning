@@ -519,6 +519,78 @@ if __name__ == '__main__':
 
     iterations = range(len(train_loss))
 
+
+
+    '''
+#function screenshots
+
+def grad_descent(W, b, x, y, alpha, epochs, reg, error_tol):
+
+    for i in range(epochs):
+
+        grad_W, grad_b = gradMSE(W, b, x, y, reg)
+        W_update = W - alpha * grad_W
+        b_update = b - alpha * grad_b
+
+        diff_weight = np.linalg.norm(W_update - W)
+
+        if diff_weight < error_tol:
+
+            return W_update, b_update
+        else:
+
+            W = W_update
+            b = b_update
+
+    return W_update, b_update
+
+
+def grad_descent(W, b, x, y, alpha, epochs, reg, error_tol, lossType='MSE'):
+
+    if lossType == 'MSE':
+        for i in range(epochs):
+
+            grad_W, grad_b = gradMSE(W, b, x, y, reg)
+            W_update = W - alpha * grad_W
+            b_update = b - alpha * grad_b
+
+            diff_weight = np.linalg.norm(W_update - W)
+
+            if diff_weight < error_tol:
+
+                return W_update, b_update
+            else:
+
+                W = W_update
+                b = b_update
+
+    elif lossType == 'CE':
+        for i in range(epochs):
+
+            grad_W, grad_b = gradCE(W, b, x, y, reg)
+            W_update = W - alpha * grad_W
+            b_update = b - alpha * grad_b
+
+            diff_weight = np.linalg.norm(W_update - W)
+
+            if diff_weight < error_tol:
+
+                return W_update, b_update
+            else:
+
+                W = W_update
+                b = b_update
+
+    return W_update, b_update
+    '''
+
+
+
+
+
+
+
+
     #plot part 3.3 MSE
     '''
     plot_part_three(iterations, train_loss, valid_loss, test_loss, 'Loss', 'Loss for CE using Adam with 1750 Batch Size')
