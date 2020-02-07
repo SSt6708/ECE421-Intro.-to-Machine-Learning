@@ -464,7 +464,7 @@ if __name__ == '__main__':
     testData = np.reshape(testData, (-1, 784))
 
 
-    W, bias, train_data, predict_target, train_target, loss, optimizer = buildGraph('CE', reg=0.0,epsilon=1e-04)
+    W, bias, train_data, predict_target, train_target, loss, optimizer = buildGraph('CE', reg=0.0)
 
     mini_batchsize = 500
     epoch = 700
@@ -682,7 +682,8 @@ def grad_descent(W, b, x, y, alpha, epochs, reg, error_tol, lossType='MSE'):
 
     #plot_part_three(iterations, train_accuracy, valid_acuuracy, test_accuracy, 'Accuracy', 'Accuracy for CE with Beta2 = 0.9999')
 
-    plot_part_three(iterations, train_accuracy, valid_acuuracy, test_accuracy, 'Accuracy', 'Accuracy for CE with Epsilon = 1e-4')
+    plot_part_three(iterations, train_accuracy, valid_acuuracy, test_accuracy, 'Accuracy', 'Accuracy for CE batch size 500')
+    plot_part_three(iterations, train_loss, valid_loss, test_loss, 'Loss', 'Loss for CE batch size 500')
 
     print(train_loss[len(train_loss) - 1])
     print(valid_loss[len(valid_loss) - 1])
